@@ -9,7 +9,7 @@ import util
 
 
 class particlefilter:
-    def __init__(self, count, start, posrange, angrange, 
+    def __init__(self, count, start, posrange, angrange,
             polemeans, polevar, T_w_o=np.identity(4)):
         self.p_min = 0.01
         self.d_max = np.sqrt(-2.0 * polevar * np.log(
@@ -35,6 +35,9 @@ class particlefilter:
         return 1.0 / (np.sum(self.weights**2.0) * self.count)
 
     def update_motion(self, mean, cov):
+        """
+            Updates all particles by a multivariate normally drawn xyp change.
+        """
         T_r0_r1 = util.xyp2ht(
             np.random.multivariate_normal(mean, cov, self.count))
         self.particles = np.matmul(self.particles, T_r0_r1)
@@ -64,11 +67,18 @@ class particlefilter:
         if self.estimatetype == 'max':
             return self.particles[np.argmax(self.weights)]
         if self.estimatetype == 'best':
+
+            """
+                Skips the worst 10% of indices (the ones with least weight)
+                Guessing xyp is x, y and phi for rotation angle, same as paper
+                ht is transformation matrix of particle at time t??
+                mean is the weighted average x, y and phi multiplied with T_w_o
+            """
             i = np.argsort(self.weights)[-int(0.1 * self.count):]
             xyp = util.ht2xyp(np.matmul(self.T_o_w, self.particles[i]))
             mean = np.hstack(
                 [np.average(xyp[:, :2], axis=0, weights=self.weights[i]),
-                    util.average_angles(xyp[:, 2], weights=self.weights[i])])                
+                    util.average_angles(xyp[:, 2], weights=self.weights[i])])
             return self.T_w_o.dot(util.xyp2ht(mean))
 
     def resample(self):
