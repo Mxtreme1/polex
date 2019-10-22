@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-import datetime
+"""
+    Imports
+"""
+import datetime# {{{
 import os
 
 import arrow
@@ -15,7 +18,7 @@ import kittiwrapper
 import mapping
 import particlefilter
 import poles
-import util
+import util# }}}
 
 
 # dataset = kittiwrapper.kittiwrapper('/mnt/data/datasets/kitti')
@@ -42,7 +45,10 @@ import util
 # evalfile = 'evaluation.npz'
 
 
-# def get_map_indices(sequence):
+"""
+    Probably not relevant
+"""
+# def get_map_indices(sequence):{{{
 #     distance = np.hstack([0.0, np.cumsum(np.linalg.norm(
 #         np.diff(sequence.poses[:, :3, 3], axis=0), axis=1))])
 #     istart = []
@@ -180,7 +186,7 @@ import util
 #     with np.load(os.path.join('kitti', seqdir, globalmapfile)) as data:
 #         xy = data['polemeans'][:, :2]
 #         plt.scatter(xy[:, 0], xy[:, 1], s=5, c='b', marker='s')
-#         plt.show()
+#         plt.show()}}}
 
 
 # def localize(seq, visualize=False):
@@ -209,7 +215,10 @@ import util
     filter.minneff = 0.5
     filter.estimatetype = 'best'
 
-    # if visualize:
+    """
+        Visualisation
+    """
+    # if visualize:{{{
     #     plt.ion()
     #     figure = plt.figure()
     #     nplots = 2
@@ -236,25 +245,29 @@ import util
     #     weightimage = weightaxes.matshow(np.zeros([gridsize, gridsize]),
     #         extent=(-offset, offset, -offset, offset))
 
-    #     # histaxes = figure.add_subplot(nplots, 1, 3)
+    #     # histaxes = figure.add_subplot(nplots, 1, 3)}}}
 
+
+    """
+        Was sind imid, iend, etc. in locdata?? Bzw. woraus besteht locdata localmap
+    """
     # imap = 0
     # while locdata[imap]['imid'] < i:
     #     imap += 1
 
-    """
-
-    """
     T_w_velo_est = np.full(T_w_velo_gt.shape, np.nan)
 
     """
         Gets the weighted average of the particles poses (in world coordinates)
-        This is the likliest position of the car at the current time
+        This is the likeliest position of the car at the current time
     """
-    T_w_velo_est[i] = filter.estimate_pose()
+    T_w_velo_est[i] = filter.estimate_pose()  # i = 0
     i += 1
     # with progressbar.ProgressBar(max_value=T_w_velo_est.shape[0] - i) as bar:
         while i < T_w_velo_est.shape[0]:
+            """
+                Change from last to current pose in terms of x, y and phi??
+            """
             relodo = util.ht2xyp(
                 util.invert_ht(T_w_velo_gt[i-1]).dot(T_w_velo_gt[i]))
             relodocov = np.diag((0.02 * relodo)**2)
@@ -290,7 +303,11 @@ import util
                 poleparams = np.hstack([polepos_velo_now[:2].T, h])
                 filter.update_measurement(poleparams[:, :2])
                 T_w_velo_est[i] = filter.estimate_pose()
-                # if visualize:
+
+                """
+                    Visualisation
+                """
+                # if visualize:{{{
                 #     polepos_w = T_w_velo_est[i].dot(polepos_velo_now)
                 #     locpoles.set_offsets(polepos_w[:2].T)
 
@@ -301,10 +318,13 @@ import util
                 #     visfilter.update_measurement(poleparams[:, :2], resample=False)
                 #     weightimage.set_array(np.flipud(
                 #         visfilter.weights.reshape([gridsize, gridsize])))
-                #     weightimage.autoscale()
+                #     weightimage.autoscale()}}}
                 imap += 1
 
-            # if visualize:
+            """
+                Visualisation
+            """
+            # if visualize:{{{
             #     particles.set_offsets(filter.particles[:, :2, 3])
             #     arrow.set_xy(T_w_velo_est[i].dot(arrowdata)[:2].T)
             #     x, y = T_w_velo_est[i, :2, 3]
@@ -314,7 +334,7 @@ import util
             #     # histaxes.hist(filter.weights,
             #     #     bins=50, range=(0.0, np.max(filter.weights)))
             #     figure.canvas.draw_idle()
-            #     figure.canvas.flush_events()
+            #     figure.canvas.flush_events()}}}
             # bar.update(i)
             i += 1
     # filename = os.path.join(seqdir, locfileprefix \
@@ -322,7 +342,10 @@ import util
     # np.savez(filename, T_w_velo_est=T_w_velo_est)
 
 
-# def evaluate(seq):
+"""
+    Evaluation of performance
+"""
+# def evaluate(seq):{{{
 #     sequence = dataset.sequence(seq)
 #     T_w_velo_gt = np.matmul(sequence.poses, sequence.calib.T_cam0_velo)
 #     T_w_velo_gt = np.array([util.project_xy(ht) for ht in T_w_velo_gt])
@@ -392,7 +415,7 @@ import util
 #             np.mean(poserror), np.mean(posrmse),
 #             np.mean(laterror), np.mean(latstd),
 #             np.mean(lonerror), np.mean(lonstd),
-#             np.mean(angerror), np.mean(angstd), np.mean(angrmse)))
+#             np.mean(angerror), np.mean(angstd), np.mean(angrmse)))}}}
 
 
 # if __name__ == '__main__':

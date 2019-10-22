@@ -17,6 +17,16 @@ class particlefilter:
         self.minneff = 0.5
         self.estimatetype = 'best'
         self.count = count
+
+        """
+            r = #count times a uniformly random distance 0 -> posrange.
+            angle = #count times a random angle -pi -> pi
+            xy = the angles multiplied by distance (radius)
+            dxyp = xy and #count random angles from the anglerange
+            particles = #count points in 2D-space and an angle phi
+            weights = starts with uniform weight
+
+        """
         r = np.random.uniform(low=0.0, high=posrange, size=[self.count, 1])
         angle = np.random.uniform(low=-np.pi, high=np.pi, size=[self.count, 1])
         xy = r * np.hstack([np.cos(angle), np.sin(angle)])
